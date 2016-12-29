@@ -1,0 +1,8 @@
+C:\dev\repos\FaceDetection\FaceDetection\bin\Debug\FaceDetection.exe.config
+C:\dev\repos\FaceDetection\FaceDetection\obj\Debug\FaceDetection.csprojResolveAssemblyReference.cache
+C:\dev\repos\FaceDetection\FaceDetection\bin\Debug\FaceDetection.exe
+C:\dev\repos\FaceDetection\FaceDetection\bin\Debug\FaceDetection.pdb
+C:\dev\repos\FaceDetection\FaceDetection\obj\Debug\FaceDetection.exe
+C:\dev\repos\FaceDetection\FaceDetection\obj\Debug\FaceDetection.pdb
+C:\dev\repos\FaceDetection\FaceDetection\bin\Debug\Newtonsoft.Json.dll
+C:\dev\repos\FaceDetection\FaceDetection\bin\Debug\Newtonsoft.Json.xml
