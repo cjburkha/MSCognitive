@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Net;
 using System.IO;
 using FaceDetection.Model.Detect;
+using FaceDetection.Shared;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -18,59 +19,43 @@ namespace FaceDetection.Services
     {
 
         //Detect will identify a face, and return the faceID. Use faceID in future calls. Kind of the baseline
-        public bool Detect(Bitmap image = null)
+        public DetectResponse Detect(Bitmap image = null)
 
         {
-            
-            
-            
+
+
+            String responseText = "Nothing";
             Byte[] imageArray;
             //
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create("https://api.projectoxford.ai/face/v1.0/detect?returnFaceId=true&returnFaceAttributes=age,smile,gender,glasses");
-            HttpWebResponse response;
-            String responseText = "none";
-            int resCode = 200;
-            request.ContentType = "application/octet-stream";
-            request.Method = "Post";
-            request.Headers.Add("Ocp-Apim-Subscription-Key", "2f37a6e26c4645ae8c7d760db35a5e41");
-            Stream requetStream =  request.GetRequestStream();
-
             imageArray = ImageToByte2(image);
-            requetStream.Write(imageArray, 0, imageArray.Length);
-            StreamReader sr;
-            try
-            {
-                response = (HttpWebResponse)request.GetResponse();
-                 sr = new StreamReader(response.GetResponseStream());
-                 
-            }
-            catch (WebException ex)
-            {
-                //response = (HttpWebResponse)request.GetResponse();
-                //sr = ex.Get
-                //sr = new StreamReader(response.GetResponseStream());    
-                sr = new StreamReader(ex.Response.GetResponseStream()); 
-                //resCode = ex.Status.
-
-            }
-
-
-
-            responseText = sr.ReadToEnd();
+            String contentType = ContentType.octect;
+            String httpMethod = "Post";
+            String url = "https://api.projectoxford.ai/face/v1.0/detect?returnFaceId=true&returnFaceAttributes=age,smile,gender,glasses";
+            responseText = new HttpService().ExecuteRequest(url, httpMethod, contentType, imageArray);
             Console.WriteLine(responseText);
 
 
             DetectResponse dResponse = DetectResponseFromJson(responseText);
 
-
-            //o.
-            //JsonP
-            //Json
-
-
             
+            return dResponse;
+        }
 
-            return true;
+        public bool CreatePersonGroup(String groupID)
+        {
+            String url = "https://api.projectoxford.ai/face/v1.0/persongroups/" + groupID;
+            String body = "{\"name\":\"family\"}";
+            String httpMethod = "Put";
+            String contentType = ContentType.json;
+            byte[] bytes = Encoding.ASCII.GetBytes(body);
+            String responseText;
+            responseText = new HttpService().ExecuteRequest(url, httpMethod, contentType, bytes);
+            if (String.IsNullOrEmpty(responseText))
+                return true;
+            else
+            {
+                return false;
+            }
         }
 
         private DetectResponse DetectResponseFromJson(string json)

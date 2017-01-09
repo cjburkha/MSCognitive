@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FaceDetection.Model.Detect;
 using FaceDetection.Services;
 namespace FaceDetection
 {
@@ -12,8 +13,12 @@ namespace FaceDetection
         static void Main(string[] args)
         {
             FaceAPI f = new FaceAPI();
-            Bitmap bitmap = new Bitmap(@"c:\temp\images\reference2.jpg");
-            f.Detect(bitmap);
+            DetectResponse detectResponse;
+            bool groupAddResult;
+            Bitmap bitmap = new Bitmap(@"c:\temp\images\reference_drew.jpg");
+            groupAddResult = f.CreatePersonGroup("family");
+            detectResponse = f.Detect(bitmap);
+            
             Console.ReadLine();
         }
     }
