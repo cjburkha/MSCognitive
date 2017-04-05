@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Net;
 using System.IO;
 using FaceDetection.Model.Detect;
+using FaceDetection.Model.People;
 using FaceDetection.Shared;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -41,10 +42,10 @@ namespace FaceDetection.Services
             return dResponse;
         }
 
-        public bool CreatePersonGroup(String groupID)
+        public bool CreatePersonGroup(String groupID, String description)
         {
             String url = "https://api.projectoxford.ai/face/v1.0/persongroups/" + groupID;
-            String body = "{\"name\":\"family\"}";
+            String body = String.Format("{{\"name\":\"{0}\", \"userData\": \"{1}\"}}", groupID, description);
             String httpMethod = "Put";
             String contentType = ContentType.json;
             byte[] bytes = Encoding.ASCII.GetBytes(body);
@@ -56,6 +57,66 @@ namespace FaceDetection.Services
             {
                 return false;
             }
+        }
+
+        
+
+        public String CreatePerson(String groupID, String personName, String personData)
+        {
+            String url = String.Format("https://westus.api.cognitive.microsoft.com/face/v1.0/persongroups/{0}/persons", groupID);
+            //String body = String.Format("{\"name\":\"{0}\", \"userData\":\"{1}\"}", personName);
+            String body = @"{{""name"":""{0}"", ""userData"":""{1}""}}";
+            body = String.Format(body, personName, personData);
+            String httpMethod = "Post";
+            String contentType = ContentType.json;
+            byte[] bytes = Encoding.ASCII.GetBytes(body);
+            String responseText;
+            responseText = new HttpService().ExecuteRequest(url, httpMethod, contentType, bytes);
+
+            return responseText;
+        }
+
+        public Dictionary<String, PersonResponse> GetPersons(String groupID)
+        {
+            String url = String.Format("https://westus.api.cognitive.microsoft.com/face/v1.0/persongroups/{0}/persons", groupID);
+            String httpMethod = "Get";
+            String contentType = ContentType.json;
+            
+            String responseText;
+            responseText = new HttpService().ExecuteRequest(url, httpMethod, contentType);
+
+            return PersonRepsonseFromJSON(responseText);
+        }
+
+        public bool DeletePerson(String groupID, String personID)
+        {
+            String url =
+                String.Format("https://westus.api.cognitive.microsoft.com/face/v1.0/persongroups/{0}/persons/{1}",groupID, personID);
+            String httpMethod = "Delete";
+            String contentType = ContentType.json;
+
+            String responseText;
+            responseText = new HttpService().ExecuteRequest(url, httpMethod, contentType);
+
+            return true;
+        }
+
+        //These can split out
+        private Dictionary<String, PersonResponse> PersonRepsonseFromJSON(string json)
+        {
+            JArray a = JArray.Parse(json);
+            Dictionary<String, PersonResponse> allPersons = new Dictionary<string, PersonResponse>();
+            if (a.Count <= 0)
+                return null;
+
+            foreach (var personResponse in a)
+            {
+               PersonResponse pResponse =  personResponse.ToObject<PersonResponse>();
+               allPersons.Add(pResponse.name, pResponse);
+            }
+
+            return allPersons;
+
         }
 
         private DetectResponse DetectResponseFromJson(string json)

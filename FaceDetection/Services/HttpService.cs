@@ -19,11 +19,15 @@ namespace FaceDetection.Services
             request.ContentType = contentType;
             request.Method = method;
             request.Headers.Add("Ocp-Apim-Subscription-Key", "2f37a6e26c4645ae8c7d760db35a5e41");
-            Stream requetStream = request.GetRequestStream();
-
             
+
+
             if (postData != null)
+            {
+                Stream requetStream = request.GetRequestStream();
                 requetStream.Write(postData, 0, postData.Length);
+            }
+                
             StreamReader sr;
             try
             {
@@ -31,12 +35,22 @@ namespace FaceDetection.Services
                 sr = new StreamReader(response.GetResponseStream());
 
             }
+                
             catch (WebException ex)
             {
-                //response = (HttpWebResponse)request.GetResponse();
-                //sr = ex.Get
-                //sr = new StreamReader(response.GetResponseStream());    
-                sr = new StreamReader(ex.Response.GetResponseStream());
+                //We want some of them to bubble up?
+                if (((HttpWebResponse) ex.Response).StatusCode == HttpStatusCode.Conflict)
+                {
+                    //The problem here is we don't have the context for the error. Which group? Which person?
+                    //This is going to happen and is ok.
+                    String err = String.Format("Received 409 for {0}. This is ok", url);
+                    Console.WriteLine(err);
+                    return "";
+                }
+                  
+                throw ex;
+
+                //sr = new StreamReader(ex.Response.GetResponseStream());
                 //resCode = ex.Status.
 
             }
